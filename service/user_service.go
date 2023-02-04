@@ -12,6 +12,7 @@ import (
 type UserService interface {
 	CreateUser(user dto.RegisterDTO) model.User
 	IsDuplicateEmail(email string) bool
+	VerifyLogin(name string, password string) interface{}
 }
 
 type userService struct {
@@ -36,9 +37,26 @@ func (service userService) CreateUser(user dto.RegisterDTO) model.User {
 
 func (service userService) IsDuplicateEmail(email string) bool {
 	res := service.userRepo.IsDuplicateEmail(email)
-	fmt.Println("____________res____________", res)
-	if res.Error != nil {
+	fmt.Println("____________res____________", res.Error)
+
+	return (res.Error == nil)
+}
+
+func (service userService) VerifyLogin(name string, password string) interface{} {
+	res := service.userRepo.VerifyLogin(name)
+	if v, ok := res.(model.User); ok {
+		isPassword := comparePassword(password, v.Password)
+		if v.Name == name && isPassword {
+			return res
+		}
 		return false
 	}
-	return true
+	return false
+}
+
+func comparePassword(enterPass string, resPassword string) bool {
+	if enterPass == resPassword {
+		return true
+	}
+	return false
 }

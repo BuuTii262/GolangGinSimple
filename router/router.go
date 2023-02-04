@@ -40,6 +40,7 @@ func InitRoute() {
 	userRoutes := apiRoutes.Group("user")
 	{
 		userRoutes.POST("/register", userController.Register)
+		userRoutes.POST("/login", userController.Login)
 	}
 
 	panic(r.Run(":8090"))

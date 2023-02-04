@@ -5,3 +5,8 @@ type RegisterDTO struct {
 	Email    string `json:"email" form:"email" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
+
+type LoginDTO struct {
+	Name     string `json:"name" form:"name" binding:"required"`
+	Password string `json:"password" form:"password" binding:"required"`
+}

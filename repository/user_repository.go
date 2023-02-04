@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	InsertUser(user model.User) model.User
 	IsDuplicateEmail(email string) (tx *gorm.DB)
+	VerifyLogin(name string) interface{}
 }
 
 type userConnection struct {
@@ -31,9 +32,18 @@ func (db *userConnection) InsertUser(user model.User) model.User {
 }
 
 func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
+	var user model.User
+	return db.connection.Where("email = ?", email).Take(&user)
 
-	res := db.connection.Raw("select * from users where email = ?", email)
+}
 
-	return res
+func (db *userConnection) VerifyLogin(name string) interface{} {
+	var user model.User
 
+	res := db.connection.Where("name = ?", name).Take(&user)
+
+	if res.Error == nil {
+		return user
+	}
+	return nil
 }
