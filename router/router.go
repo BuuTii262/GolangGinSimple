@@ -5,6 +5,7 @@ import (
 
 	"MyGO.com/m/config"
 	"MyGO.com/m/controller"
+	"MyGO.com/m/middleware"
 	"MyGO.com/m/repository"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,13 @@ import (
 
 var (
 	db *gorm.DB = config.SetupDBConnection()
+	//JWT
+	jwtService service.JwtService = service.NewJwtService()
 
 	//User
 	userRepository repository.UserRepository = repository.NewUserRepository(db)
 	userService    service.UserService       = service.NewUserService(userRepository)
-	userController controller.UserController = controller.NewUserController(userService)
+	userController controller.UserController = controller.NewUserController(userService, jwtService)
 )
 
 func InitRoute() {
@@ -26,14 +29,6 @@ func InitRoute() {
 	r := gin.Default()
 	r.Use(Cors())
 
-	r.GET("/welcome", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"err_code": 0,
-			"err_msg":  "Welcome to my API",
-			"data":     nil,
-		})
-	})
-
 	apiRoutes := r.Group("/api")
 
 	//User routes
@@ -41,6 +36,11 @@ func InitRoute() {
 	{
 		userRoutes.POST("/register", userController.Register)
 		userRoutes.POST("/login", userController.Login)
+	}
+
+	welcomeRoutes := apiRoutes.Group("welcome", middleware.AuthorizeJWT(jwtService))
+	{
+		welcomeRoutes.GET("/hello", userController.GetWelcome)
 	}
 
 	panic(r.Run(":8090"))

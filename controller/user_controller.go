@@ -3,26 +3,32 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
 	"MyGO.com/m/model"
 	"MyGO.com/m/service"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 type UserController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
+	GetWelcome(ctx *gin.Context)
 }
 
 type userController struct {
 	userService service.UserService
+	jwtService  service.JwtService
 }
 
-func NewUserController(userService service.UserService) UserController {
+func NewUserController(userService service.UserService, jwtService service.JwtService) UserController {
 	return &userController{
 		userService: userService,
+		jwtService:  jwtService,
 	}
 }
 
@@ -56,12 +62,40 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 	loginResult := c.userService.VerifyLogin(loginDTO.Name, loginDTO.Password)
-	if _, ok := loginResult.(model.User); ok {
-		response := helper.ResponseData(0, "Login success full", helper.EmptyObj{})
+	if v, ok := loginResult.(model.User); ok {
+		generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
+		v.Token = generateToken
+		response := helper.ResponseData(0, "Login successfull", v)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
 	response := helper.ResponseErrorData(504, "Invalid uesr name or password")
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *userController) GetWelcome(ctx *gin.Context) {
+
+	authHeader := ctx.GetHeader("Authorization")
+	splitToken := strings.Split(authHeader, "Bearer ")
+	authHeader = splitToken[1]
+	token, errToken := c.jwtService.ValidateToken(authHeader)
+	if errToken != nil {
+		response := helper.ResponseErrorData(401, "Token error !")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
+	if err != nil {
+		res := helper.ResponseErrorData(400, err.Error())
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"err_code": 0,
+		"err_msg":  "Welcome to my website and hello world !!!!!",
+		"data":     id,
+	})
 }
