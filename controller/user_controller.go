@@ -74,6 +74,10 @@ func (c *userController) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+type ResponseWelcomeStruct struct {
+	ID uint64
+}
+
 func (c *userController) GetWelcome(ctx *gin.Context) {
 
 	authHeader := ctx.GetHeader("Authorization")
@@ -93,9 +97,11 @@ func (c *userController) GetWelcome(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"err_code": 0,
-		"err_msg":  "Welcome to my website and hello world !!!!!",
-		"data":     id,
-	})
+	var responseUser ResponseWelcomeStruct
+	responseUser.ID = id
+
+	response := helper.ResponseData(0, "Success", responseUser)
+
+	ctx.JSON(http.StatusOK, response)
+
 }
