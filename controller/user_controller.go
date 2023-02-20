@@ -121,7 +121,7 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 	authHeader = splitToken[1]
 	_, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
-		response := helper.ResponseErrorData(401, "Token error !")
+		response := helper.ResponseErrorData(401, errToken.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
