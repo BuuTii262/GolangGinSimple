@@ -54,8 +54,20 @@ func (db *userConnection) GetAllUser(req *dto.UserGetRequest) ([]model.User, int
 	var users []model.User
 	var total int64
 
-	offset := (req.Page - 1) * req.PageSize
-	pageSize := req.PageSize
+	var offset uint64
+	var pageSize uint64
+	if req.Page != 0 {
+		offset = (req.Page - 1) * req.PageSize
+	} else {
+		offset = 0
+
+	}
+	if req.PageSize != 0 {
+		pageSize = req.PageSize
+	} else {
+		pageSize = 10
+
+	}
 
 	var filter string
 
