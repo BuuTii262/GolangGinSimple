@@ -55,19 +55,19 @@ func (db *userConnection) GetAllUser(req *dto.UserGetRequest) ([]model.User, int
 	var total int64
 
 	offset := (req.Page - 1) * req.PageSize
-
 	pageSize := req.PageSize
 
-	// res := db.connection.Offset(offset).Limit(pageSize).Find(&users)
+	var filter string
 
-	sql := fmt.Sprintf("select * from users limit %v offset %v", pageSize, offset)
+	if req.ID != 0 {
+		filter = fmt.Sprintf("where id = %v", req.ID)
+	}
+
+	sql := fmt.Sprintf("select * from users %s limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&users)
 
-	// if err := db.connection.Raw(fmt.Sprintf("select count(1) from banks %s", filter)).Scan(&count).Error; err != nil {
-	// 	return nil, 0, err
-	// }
-
-	if err := db.connection.Raw(fmt.Sprintf("select count(1) from users")).Scan(&total).Error; err != nil {
+	countQuery := fmt.Sprintf("select count(1) from users %s", filter)
+	if err := db.connection.Raw(countQuery).Scan(&total).Error; err != nil {
 		return nil, 0, err
 	}
 

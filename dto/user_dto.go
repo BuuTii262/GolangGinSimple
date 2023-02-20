@@ -14,4 +14,5 @@ type LoginDTO struct {
 type UserGetRequest struct {
 	Page     uint64 `json:"page" form:"page"`
 	PageSize uint64 `json:"page_size" form:"page_size"`
+	ID       uint64 `json:"id" form:"id"`
 }
