@@ -136,6 +136,12 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 
 	result, count, err := c.userService.GetAllUsers(req)
 
+	if count == 0 {
+		response := helper.ResponseErrorData(512, "Record not found")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
 	if err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
