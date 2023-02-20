@@ -109,6 +109,11 @@ func (c *userController) GetWelcome(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+type UserListData struct {
+	List  []model.User `json:"list"`
+	Total int64        `json:"total"`
+}
+
 func (c *userController) GetAllUsers(ctx *gin.Context) {
 
 	authHeader := ctx.GetHeader("Authorization")
@@ -120,9 +125,29 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	result := c.userService.GetAllUsers()
-	fmt.Println("Here is result >>>>>>>>>>>>", result)
-	response := helper.ResponseData(0, "success", result)
+
+	req := &dto.UserGetRequest{}
+
+	if err := ctx.ShouldBind(&req); err != nil {
+		response := helper.ResponseErrorData(500, "Internal server error !")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	result, count, err := c.userService.GetAllUsers(req)
+
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	var responseList UserListData
+
+	responseList.List = result
+	responseList.Total = count
+
+	response := helper.ResponseData(0, "success", responseList)
 	ctx.JSON(http.StatusOK, response)
 
 }

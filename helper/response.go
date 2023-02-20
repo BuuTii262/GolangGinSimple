@@ -13,6 +13,8 @@ type ResponseErr struct {
 
 type EmptyObj struct{}
 
+
+
 func ResponseData(err_code uint64, err string, data interface{}) Response {
 	response := Response{
 		ErrorCode:    err_code,

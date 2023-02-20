@@ -13,7 +13,7 @@ type UserService interface {
 	CreateUser(user dto.RegisterDTO) model.User
 	IsDuplicateEmail(email string) bool
 	VerifyLogin(name string, password string) interface{}
-	GetAllUsers() []model.User
+	GetAllUsers(req *dto.UserGetRequest) ([]model.User, int64, error)
 }
 
 type userService struct {
@@ -62,7 +62,10 @@ func comparePassword(enterPass string, resPassword string) bool {
 	return false
 }
 
-func (service userService) GetAllUsers() []model.User {
-	res := service.userRepo.GetAllUser()
-	return res
+func (service userService) GetAllUsers(req *dto.UserGetRequest) ([]model.User, int64, error) {
+	users, count, errr := service.userRepo.GetAllUser(req)
+	if errr != nil {
+		return nil, 0, errr
+	}
+	return users, count, nil
 }
