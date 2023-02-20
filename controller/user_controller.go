@@ -18,6 +18,7 @@ type UserController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	GetWelcome(ctx *gin.Context)
+	GetAllUsers(ctx *gin.Context)
 }
 
 type userController struct {
@@ -49,7 +50,10 @@ func (c *userController) Register(ctx *gin.Context) {
 	}
 
 	createUser := c.userService.CreateUser(registerDTO)
+	generateToken := c.jwtService.GenerateToken(strconv.FormatUint(createUser.ID, 10))
+	createUser.Token = generateToken
 	response := helper.ResponseData(0, "Success", createUser)
+
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -102,6 +106,23 @@ func (c *userController) GetWelcome(ctx *gin.Context) {
 
 	response := helper.ResponseData(0, "Success", responseUser)
 
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *userController) GetAllUsers(ctx *gin.Context) {
+
+	authHeader := ctx.GetHeader("Authorization")
+	splitToken := strings.Split(authHeader, "Bearer ")
+	authHeader = splitToken[1]
+	_, errToken := c.jwtService.ValidateToken(authHeader)
+	if errToken != nil {
+		response := helper.ResponseErrorData(401, "Token error !")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+	result := c.userService.GetAllUsers()
+	fmt.Println("Here is result >>>>>>>>>>>>", result)
+	response := helper.ResponseData(0, "success", result)
 	ctx.JSON(http.StatusOK, response)
 
 }

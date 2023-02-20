@@ -43,6 +43,11 @@ func InitRoute() {
 		welcomeRoutes.GET("/hello", userController.GetWelcome)
 	}
 
+	userAdminRoutes := apiRoutes.Group("users", middleware.AuthorizeJWT(jwtService))
+	{
+		userAdminRoutes.GET("/get-all-users", userController.GetAllUsers)
+	}
+
 	panic(r.Run(":8090"))
 }
 

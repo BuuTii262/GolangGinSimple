@@ -11,6 +11,7 @@ type UserRepository interface {
 	InsertUser(user model.User) model.User
 	IsDuplicateEmail(email string) (tx *gorm.DB)
 	VerifyLogin(name string) interface{}
+	GetAllUser() []model.User
 }
 
 type userConnection struct {
@@ -44,6 +45,19 @@ func (db *userConnection) VerifyLogin(name string) interface{} {
 
 	if res.Error == nil {
 		return user
+	}
+	return nil
+}
+
+func (db *userConnection) GetAllUser() []model.User {
+	var users []model.User
+	offset := 0
+	pageSize := 10
+
+	res := db.connection.Offset(offset).Limit(pageSize).Find(&users)
+
+	if res.Error == nil {
+		return users
 	}
 	return nil
 }

@@ -13,6 +13,7 @@ type UserService interface {
 	CreateUser(user dto.RegisterDTO) model.User
 	IsDuplicateEmail(email string) bool
 	VerifyLogin(name string, password string) interface{}
+	GetAllUsers() []model.User
 }
 
 type userService struct {
@@ -59,4 +60,9 @@ func comparePassword(enterPass string, resPassword string) bool {
 		return true
 	}
 	return false
+}
+
+func (service userService) GetAllUsers() []model.User {
+	res := service.userRepo.GetAllUser()
+	return res
 }
