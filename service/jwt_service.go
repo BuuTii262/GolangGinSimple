@@ -33,7 +33,7 @@ func NewJwtService() JwtService {
 
 func getSecretKey() string {
 	secretKey := os.Getenv("JWT_SECRET")
-	if secretKey != "" {
+	if secretKey == "" {
 		secretKey = "minghua"
 	}
 	return secretKey
