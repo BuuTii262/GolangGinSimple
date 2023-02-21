@@ -5,8 +5,5 @@ import (
 )
 
 func main() {
-
-	// fmt.Println(">>>>>>>>>>>>>>>>>>>>>Here is port :::::::", os.Getenv("PORT"))
 	router.InitRoute()
-
 }
