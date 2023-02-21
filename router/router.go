@@ -20,6 +20,7 @@ var (
 	//User
 	userRepository repository.UserRepository = repository.NewUserRepository(db)
 	userService    service.UserService       = service.NewUserService(userRepository)
+	authController controller.AuthController = controller.NewAuthContrller(userService, jwtService)
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
 )
 
@@ -34,13 +35,8 @@ func InitRoute() {
 	//User routes
 	userRoutes := apiRoutes.Group("auth")
 	{
-		userRoutes.POST("/register", userController.Register)
-		userRoutes.POST("/login", userController.Login)
-	}
-
-	welcomeRoutes := apiRoutes.Group("welcome", middleware.AuthorizeJWT(jwtService))
-	{
-		welcomeRoutes.GET("/hello", userController.GetWelcome)
+		userRoutes.POST("/register", authController.Register)
+		userRoutes.POST("/login", authController.Login)
 	}
 
 	userAdminRoutes := apiRoutes.Group("users", middleware.AuthorizeJWT(jwtService))
