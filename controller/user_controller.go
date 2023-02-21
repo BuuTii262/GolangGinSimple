@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
@@ -30,16 +29,6 @@ func NewUserController(userService service.UserService, jwtService service.JwtSe
 }
 
 func (c *userController) GetAllUsers(ctx *gin.Context) {
-
-	// authHeader := ctx.GetHeader("Authorization")
-	// splitToken := strings.Split(authHeader, "Bearer ")
-	// authHeader = splitToken[1]
-	// _, errToken := c.jwtService.ValidateToken(authHeader)
-	// if errToken != nil {
-	// 	response := helper.ResponseErrorData(401, errToken.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
 
 	fmt.Println("Here in Get all user function controller")
 
@@ -76,16 +65,6 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 }
 func (c *userController) UpdateUser(ctx *gin.Context) {
 
-	authHeader := ctx.GetHeader("Authorization")
-	splitToken := strings.Split(authHeader, "Bearer ")
-	authHeader = splitToken[1]
-	_, errToken := c.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		response := helper.ResponseErrorData(401, errToken.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
 	var updateUserDto dto.UpdateUserDto
 	errDTO := ctx.ShouldBind(&updateUserDto)
 	if errDTO != nil {
@@ -116,15 +95,6 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 }
 
 func (c *userController) DeleteUser(ctx *gin.Context) {
-	authHeader := ctx.GetHeader("Authorization")
-	splitToken := strings.Split(authHeader, "Bearer ")
-	authHeader = splitToken[1]
-	_, errToken := c.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		response := helper.ResponseErrorData(401, errToken.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
 
 	var deleteDTO dto.DeleteByIdDTO
 
