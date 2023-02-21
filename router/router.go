@@ -32,7 +32,7 @@ func InitRoute() {
 	apiRoutes := r.Group("/api")
 
 	//User routes
-	userRoutes := apiRoutes.Group("user")
+	userRoutes := apiRoutes.Group("auth")
 	{
 		userRoutes.POST("/register", userController.Register)
 		userRoutes.POST("/login", userController.Login)
@@ -46,6 +46,9 @@ func InitRoute() {
 	userAdminRoutes := apiRoutes.Group("users", middleware.AuthorizeJWT(jwtService))
 	{
 		userAdminRoutes.GET("/get-all-users", userController.GetAllUsers)
+		userAdminRoutes.POST("/update-user", userController.UpdateUser)
+		userAdminRoutes.POST("/delete-use", userController.DeleteUser)
+
 	}
 
 	panic(r.Run(":8090"))

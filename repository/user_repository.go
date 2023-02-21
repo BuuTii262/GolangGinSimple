@@ -13,6 +13,9 @@ type UserRepository interface {
 	IsDuplicateEmail(email string) (tx *gorm.DB)
 	VerifyLogin(name string) interface{}
 	GetAllUser(req *dto.UserGetRequest) ([]model.User, int64, error)
+	UpdateUser(user model.User) model.User
+	IsUserExist(id uint64) (tx *gorm.DB)
+	DeleteUser(id uint64) error
 }
 
 type userConnection struct {
@@ -88,4 +91,28 @@ func (db *userConnection) GetAllUser(req *dto.UserGetRequest) ([]model.User, int
 	}
 
 	return nil, 0, nil
+}
+
+func (db *userConnection) IsUserExist(id uint64) (tx *gorm.DB) {
+	var user model.User
+	return db.connection.Where("id = ?", id).Take(&user)
+}
+
+func (db *userConnection) UpdateUser(user model.User) model.User {
+
+	err := db.connection.Model(&user).Where("id = ?", user.ID).Updates(model.User{Name: user.Name, Email: user.Email, Password: user.Password})
+	if err != nil {
+		fmt.Println("-----------------Here is error in update user repository ------------------")
+	}
+	return user
+}
+
+func (db *userConnection) DeleteUser(id uint64) error {
+
+	sql := fmt.Sprintf("delete from users where id = %d", id)
+	if err := db.connection.Exec(sql); err != nil {
+		return err.Error
+	}
+
+	return nil
 }

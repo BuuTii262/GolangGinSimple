@@ -14,6 +14,9 @@ type UserService interface {
 	IsDuplicateEmail(email string) bool
 	VerifyLogin(name string, password string) interface{}
 	GetAllUsers(req *dto.UserGetRequest) ([]model.User, int64, error)
+	UpdateUser(user dto.UpdateUserDto) model.User
+	IsUserExist(id uint64) bool
+	DeleteUser(id uint64) error
 }
 
 type userService struct {
@@ -68,4 +71,24 @@ func (service userService) GetAllUsers(req *dto.UserGetRequest) ([]model.User, i
 		return nil, 0, errr
 	}
 	return users, count, nil
+}
+
+func (service userService) UpdateUser(user dto.UpdateUserDto) model.User {
+	userToUpdate := model.User{}
+	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
+	if err != nil {
+		fmt.Println("----------Here is error in update service----------", err.Error())
+	}
+	res := service.userRepo.UpdateUser(userToUpdate)
+	return res
+}
+
+func (service userService) IsUserExist(id uint64) bool {
+	res := service.userRepo.IsUserExist(id)
+	return (res.Error == nil)
+}
+
+func (service userService) DeleteUser(id uint64) error {
+	res := service.userRepo.DeleteUser(id)
+	return res
 }
