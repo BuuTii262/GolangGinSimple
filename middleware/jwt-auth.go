@@ -18,7 +18,8 @@ func AuthorizeJWT(jwtService service.JwtService) gin.HandlerFunc {
 
 		if authHeader == "" {
 			response := helper.ResponseErrorData(401, "No token found")
-			ctx.JSON(http.StatusUnauthorized, response)
+			ctx.JSON(http.StatusOK, response)
+			ctx.Abort()
 			return
 		}
 
@@ -27,17 +28,22 @@ func AuthorizeJWT(jwtService service.JwtService) gin.HandlerFunc {
 		token, err := jwtService.ValidateToken(authHeader)
 		if err != nil {
 			fmt.Println("Here have error in Middle warre", err.Error())
+			response := helper.ResponseErrorData(401, err.Error())
+			ctx.JSON(http.StatusOK, response)
+			ctx.Abort()
 			return
 		}
 
 		if !token.Valid {
 			response := helper.ResponseErrorData(401, "Token is not valid")
 			ctx.JSON(http.StatusOK, response)
+			ctx.Abort()
 			return
 		}
 		claims := token.Claims.(jwt.MapClaims)
-
 		log.Println("Claim[user_id]: ", claims["user_id"])
+
+		ctx.Next()
 
 	}
 }

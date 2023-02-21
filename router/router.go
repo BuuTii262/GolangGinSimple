@@ -39,7 +39,8 @@ func InitRoute() {
 		userRoutes.POST("/login", authController.Login)
 	}
 
-	userAdminRoutes := apiRoutes.Group("users", middleware.AuthorizeJWT(jwtService))
+	userAdminRoutes := apiRoutes.Group("users")
+	userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		userAdminRoutes.GET("/get-all-users", userController.GetAllUsers)
 		userAdminRoutes.POST("/update-user", userController.UpdateUser)

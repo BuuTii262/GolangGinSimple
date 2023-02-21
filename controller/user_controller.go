@@ -31,15 +31,17 @@ func NewUserController(userService service.UserService, jwtService service.JwtSe
 
 func (c *userController) GetAllUsers(ctx *gin.Context) {
 
-	authHeader := ctx.GetHeader("Authorization")
-	splitToken := strings.Split(authHeader, "Bearer ")
-	authHeader = splitToken[1]
-	_, errToken := c.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		response := helper.ResponseErrorData(401, errToken.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
+	// authHeader := ctx.GetHeader("Authorization")
+	// splitToken := strings.Split(authHeader, "Bearer ")
+	// authHeader = splitToken[1]
+	// _, errToken := c.jwtService.ValidateToken(authHeader)
+	// if errToken != nil {
+	// 	response := helper.ResponseErrorData(401, errToken.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	fmt.Println("Here in Get all user function controller")
 
 	req := &dto.UserGetRequest{}
 
